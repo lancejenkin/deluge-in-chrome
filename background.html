@@ -13,7 +13,6 @@
        */
       function add_torrent_from_url(request, sender, sendResponse) {
         var ENDPOINT = localStorage.deluge_address + '/json';
-
         /**
          * Fetches the configuration values needed to add the torrent before
          * adding the torrent to Deluge.
@@ -80,7 +79,11 @@
             }
           });
         }
-
+        // If Magnet link, add directly to deluge, no need to download anything
+        if(request.url.indexOf("magnet:") == 0){
+          add_torrent(request.url);
+          return;
+        }
         // First we need to download the torrent file to a temp location in Deluge.
         $.ajax({
           type: 'POST',
@@ -94,6 +97,7 @@
           success: function(obj) {
             if(obj && obj.result) {
               console.log('deluge: downloaded torrent.');
+              console.log(obj);
               add_torrent(obj.result);
               return;
             }
